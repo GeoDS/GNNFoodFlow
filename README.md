@@ -1,11 +1,11 @@
-# County-Level Trade Flow Prediction using Graph Neural Networks
-A project leveraging Graph Neural Networks (GNNs) to predict trade flows between counties and FAF zones for economic planning, infrastructure development, and policy-making.
+# Multi-Scale Food Flow Prediction using Graph Neural Networks
+A project leveraging Graph Neural Networks (GNNs) to predict food flows between counties and FAF zones for economic planning, infrastructure development, and policy-making.
 
 Tags: Smart-Foodsheds, AI4CI
 
 ## Tutorials
 
-### Getting Started with Trade Flow Prediction
+### Getting Started with Food Flow Prediction
 - **Prerequisites**:
   - Python 3.9
   - PyTorch (>=1.9.0)

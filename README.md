@@ -1,13 +1,13 @@
 # County-Level Trade Flow Prediction using Graph Neural Networks
 
 ## Motivation
-Understanding and predicting trade flows between counties is crucial for economic planning, infrastructure development, and policy-making. Traditional statistical methods often fail to capture the complex relationships and dependencies in trade networks. This project leverages modern Graph Neural Networks (GNNs) to better model these intricate patterns of inter-county trade.
+Understanding and predicting trade flows between counties and FAF zones is crucial for economic planning, infrastructure development, and policy-making. Traditional statistical methods often fail to capture the complex relationships and dependencies in trade networks. This project leverages modern Graph Neural Networks (GNNs) to better model these intricate patterns of inter-county and inter-FAF zone trade.
 
 ## Goal
 The primary objectives of this project are to:
-- Develop accurate predictions of trade flows between counties using both Graph Attention Networks (GAT) and Graph Convolutional Networks (GCN)
+- Develop accurate predictions of trade flows between counties and between FAF zones using both Graph Attention Networks (GAT) and Graph Convolutional Networks (GCN)
 - Implement a hurdle model approach that can:
-  1. Predict whether trade exists between two counties
+  1. Predict whether trade exists between two counties or two FAF zones
   2. Estimate the volume of trade when it exists
 - Compare the performance of different GNN architectures for trade flow prediction
 - Create a robust model that accounts for both geographical and economic features
@@ -27,7 +27,7 @@ This project utilizes the Freight Analysis Framework (FAF5) dataset, which provi
 - **Rich Feature Set**: Incorporates:
   - County-level economic indicators (population, employment_rate, median_income, industry_diversity)
   - Geographic distance and transportation modes (distance, dms_mode, dist_band)
-- **FAF Zone Level Estimation**: Estimates trade flows at the FAF zone level, especially for the trade without detailed county-level data
+- **FAF Zone Level Estimation**: Estimates trade flows at the FAF zone level, with capability to model both inter-county and inter-FAF zone trade patterns
 
 ## How to Use
 
@@ -42,6 +42,13 @@ This project utilizes the Freight Analysis Framework (FAF5) dataset, which provi
 - GeoPandas (>=0.9.0)
 - PyTorch Geometric (>=2.0.0)
 - tqdm (>=4.62.0)
+
+## Next Steps
+The next step in this project is to extend the model to handle inter-county trade flow predictions. This will involve:
+- Developing county-to-county trade flow estimation methods
+- Refining the model to capture more granular trade patterns
+- Validating predictions against available county-level data
+- Implementing visualization tools for inter-county trade networks
 
 ## Acknowledgements
 This project is supported by ICICLE, a research project funnded by Ohio State University.

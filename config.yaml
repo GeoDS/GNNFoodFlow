@@ -1,0 +1,96 @@
+# config.yaml - Configuration for County-Level Trade Flow Prediction using GNNs
+
+# Project information
+project:
+  name: "County-Level Trade Flow Prediction"
+  description: "Predicting trade flows between counties using Graph Neural Networks"
+  version: "1.0.0"
+
+# Environment and dependencies
+environment:
+  python_version: "3.8"
+  dependencies:
+    - pytorch>=1.9.0
+    - pandas>=1.3.0
+    - numpy>=1.20.0
+    - matplotlib>=3.4.0
+    - scikit-learn>=0.24.0
+    - networkx>=2.6.0
+    - geopandas>=0.9.0
+    - torch-geometric>=2.0.0
+    - tqdm>=4.62.0
+
+# Data paths and configuration
+data:
+  shapefiles:
+    county_path: "code/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp"
+    state_path: "code/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp"
+    FAF_zones_path: "code/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp"
+
+  trade_data:
+    SCTG_01_path: "code/data/FAF5_SCTG1.csv"
+
+  economic_indicators:
+    path: "code/data/faf_features.csv"
+
+  FAF_Distance_Matrix:
+    path: "code/data/FAF_Distance_Matrix.csv"
+
+# Feature engineering configuration
+features:
+  county_features:
+    - "population"
+    - "employment_rate"
+    - "median_income"
+    - "industry_diversity"
+
+
+  edge_features:
+    - "distance"
+    - "dms_mode"
+    - "dist_band"
+
+# Model configurations
+models:
+  gat:
+    hidden_channels: 64
+    num_heads: 8
+    num_layers: 3
+    dropout: 0.2
+    learning_rate: 0.001
+    weight_decay: 0.0005
+
+  gcn:
+    hidden_channels: 128
+    num_layers: 4
+    dropout: 0.3
+    learning_rate: 0.001
+    weight_decay: 0.0005
+
+# Hurdle model configuration
+hurdle_model:
+  classification:
+    threshold: 0.5
+    class_weight: {0: 1.0, 1: 3.0}  # Handle class imbalance
+
+  regression:
+    loss: "mse"
+    metrics: ["mae", "rmse", "r2"]
+
+# Training configuration
+training:
+  batch_size: 64
+  epochs: 500
+  test_split: 0.3
+  random_seed: 42
+  device: "cpu"
+
+# Evaluation metrics
+evaluation:
+  classification_metrics:
+    - "accuracy"
+    - "precision"
+  regression_metrics:
+    - "mse"
+    - "rmse"
+    - "r2"

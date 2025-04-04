@@ -16,7 +16,7 @@ Tags: Smart-Foodsheds, AI4CI
   - Scikit-learn (>=0.24.0)
   - NetworkX (>=2.6.0)
   - GeoPandas (>=0.9.0)
-  - tqdm (>=4.62.0)
+
 - **Steps to run the model**:
   1. Clone the repository
   2. Install dependencies
@@ -32,6 +32,8 @@ Tags: Smart-Foodsheds, AI4CI
   1. First predicts whether trade exists between two regions
   2. Then estimates the volume of trade when it exists
 - **Code example**: See the GAT model implementation in `code/model.py`
+- **Results**: See the resulted models in `code/models`, note that models for different SCTG02 codes has to be trained separately
+
 
 ### How to Incorporate Geographic and Economic Features
 - **Problem**: Capturing complex relationships in trade networks
@@ -53,7 +55,7 @@ This design better handles the sparse nature of trade networks where many county
 ## Reference
 
 ### Data Sources
-- **Trade Data**: FAF5 SCTG1 commodity flow data (`code/data/FAF5_SCTG1.csv`)
+- **Trade Data**: [FAF5.6.1 SCTG1 commodity flow data](https://faf.ornl.gov/faf5/) (`code/data/FAF5_SCTG1.csv`)
 - **Geographic Information**:
   - County shapefiles (`code/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp`)
   - State shapefiles (`code/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp`)

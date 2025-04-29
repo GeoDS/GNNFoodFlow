@@ -1,7 +1,15 @@
 # Multi-Scale Food Flow Prediction using Graph Neural Networks
-A project leveraging Graph Neural Networks (GNNs) to predict food flows between counties and FAF zones for economic planning, infrastructure development, and policy-making.
+A project leveraging Graph Neural Networks (GNNs) to predict food flows between counties and FAF zones for economic planning, infrastructure development, and policy-making. This model predicts food trade flows between U.S. counties and Freight Analysis Framework (FAF) zones using Graph Neural Networks (GNNs). It addresses the challenges of sparsity in trade data by applying a two-stage hurdle model that distinguishes between the presence and magnitude of trade.
 
 Tags: Smart-Foodsheds, AI4CI
+
+## Model Details
+- **Developed by**: Qianheng Zhang & ICICLE Team
+- **Funded by**: NSF AI Institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
+- **Model type**: Graph Neural Network (GAT and GCN variants)
+- **Language(s)**: English (for documentation and metadata)
+- **License**: MIT License
+- **Framework**: PyTorch, PyTorch Geometric
 
 ## Tutorials
 
@@ -23,6 +31,7 @@ Tags: Smart-Foodsheds, AI4CI
   3. Prepare your data following the format in the data section
   4. Run the training script
   5. Evaluate model performance
+
 
 ## How-To Guides
 
@@ -52,6 +61,30 @@ Our approach uses Graph Neural Networks to model trade relationships between cou
 
 This design better handles the sparse nature of trade networks where many county pairs have zero trade. The model learns both from geographic proximity and economic similarity, providing more accurate predictions than traditional statistical methods.
 
+## Uses
+
+### Direct Use
+- Predicting food flows between regions using node (county/FAF zone) and edge features
+- Modeling economic connectivity and transportation dependency
+
+### Downstream Use
+- Spatial forecasting of trade changes under policy shifts
+- Identifying critical counties for supply chain resilience
+
+### Out-of-Scope Use
+- Real-time food trade forecasting
+- Non-U.S. geographic settings without retraining
+
+## Bias, Risks, and Limitations
+- **Bias**: Model predictions depend on historical FAF data and may not reflect unexpected future disruptions (e.g., disasters, pandemics)
+- **Limitations**: Prediction is limited to predefined commodity codes (SCTG1)
+- **Data quality**: Assumes accuracy of FAF flow data and economic indicators
+
+## Recommendations
+Users should:
+- Evaluate model generalizability before applying it to non-FAF settings
+- Interpret sparse predictions carefully—zeros may result from missing data, not true absence
+
 ## Reference
 
 ### Data Sources
@@ -67,6 +100,6 @@ This design better handles the sparse nature of trade networks where many county
 National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
 
 ### Future Work
-- Extending the model to handle inter-county trade flow predictions
-- Refining the model to capture more granular trade patterns
-- Implementing visualization tools for inter-county trade networks
+- Extending the model to handle inter-county food trade flow predictions
+- Refining the model to capture more granular food trade patterns
+- Implementing visualization tools for inter-county food trade networks

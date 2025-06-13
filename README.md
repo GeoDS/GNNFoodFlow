@@ -40,7 +40,7 @@ Tags: Smart-Foodsheds, AI4CI
 - **Solution**: Implement a two-stage hurdle model that:
   1. First predicts whether trade exists between two regions
   2. Then estimates the volume of trade when it exists
-- **Code example**: See the GAT model implementation in `code/model.py`
+- **Code example**: See the GNN model implementation in `code/model.py`
 - **Results**: See the resulted models in `code/models`, note that models for different SCTG02 codes has to be trained separately
 
 
@@ -93,8 +93,10 @@ Users should:
   - County shapefiles (`code/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp`)
   - State shapefiles (`code/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp`)
   - FAF zones shapefiles (`code/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp`)
-- **Economic Indicators**: County-level economic data (`code/data/faf_features.csv`)
-- **Distance Information**: FAF Distance Matrix (`code/data/FAF_Distance_Matrix.csv`)
+- **Economic Indicators**: County-level economic data (`code/data/faf_features_aligned_filtered.csv`)
+- **Distance Information**: FAF Distance Matrix (`code/data/FAF_distance_Matrix.csv`)
+
+Other required data can be downloaded via [Google Drive](https://drive.google.com/drive/folders/1mnlbiRvBHw4Hy2iU-i1IvElLw3Uuf0aV?usp=drive_link), due to the limitation of file sizes.
 
 ### Acknowledgements
 National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)

@@ -17,13 +17,6 @@ This repository contains the core implementation for the FoodFlow GNN model. For
 ## License
 MIT
 
-- **Steps to run the model**:
-  1. Clone the repository
-  2. Install dependencies
-  3. Prepare your data following the format in the data section
-  4. Run the training script
-  5. Evaluate model performance
-
 ## Acknowledgements
 National Science Foundation (NSF) funded AI Institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
 

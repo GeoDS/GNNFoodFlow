@@ -10,20 +10,12 @@ Tags: Smart-Foodsheds, AI4CI
 - **Language(s)**: English (for documentation and metadata)
 - **License**: MIT License
 - **Framework**: PyTorch, PyTorch Geometric
+This repository contains the core implementation for the FoodFlow GNN model. For comprehensive usage instructions, detailed tutorials, and visualization tools, please visit: [https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model](https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model)
 
 ## Tutorials
 
-### Getting Started with Food Flow Prediction
-- **Prerequisites**:
-  - Python 3.9
-  - PyTorch (>=1.9.0)
-  - PyTorch Geometric (>=2.0.0)
-  - Pandas (>=1.3.0)
-  - NumPy (>=1.20.0)
-  - Matplotlib (>=3.4.0)
-  - Scikit-learn (>=0.24.0)
-  - NetworkX (>=2.6.0)
-  - GeoPandas (>=0.9.0)
+## License
+MIT
 
 - **Steps to run the model**:
   1. Clone the repository
@@ -32,6 +24,8 @@ Tags: Smart-Foodsheds, AI4CI
   4. Run the training script
   5. Evaluate model performance
 
+## Acknowledgements
+National Science Foundation (NSF) funded AI Institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
 
 ## How-To Guides
 
@@ -40,9 +34,14 @@ Tags: Smart-Foodsheds, AI4CI
 - **Solution**: Implement a two-stage hurdle model that:
   1. First predicts whether trade exists between two regions
   2. Then estimates the volume of trade when it exists
-- **Code example**: See the GNN model implementation in `code/model.py`
+- **Code example**: See the GAT model implementation in `code/model.py`
 - **Results**: See the resulted models in `code/models`, note that models for different SCTG02 codes has to be trained separately
 
+### Prerequisites
+- Python 3.9+
+- PyTorch (>=1.9.0)
+- PyTorch Geometric (>=2.0.0)
+- Other dependencies (see Hugging Face page for complete list)
 
 ### How to Incorporate Geographic and Economic Features
 - **Problem**: Capturing complex relationships in trade networks
@@ -61,7 +60,11 @@ Our approach uses Graph Neural Networks to model trade relationships between cou
 
 This design better handles the sparse nature of trade networks where many county pairs have zero trade. The model learns both from geographic proximity and economic similarity, providing more accurate predictions than traditional statistical methods.
 
-## Uses
+## For Detailed Usage
+- **Complete setup instructions**: [Hugging Face - Setup Instructions](https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model)
+- **Data download links**: [FoodFlow Inference Data](https://drive.google.com/drive/u/0/folders/1mnlbiRvBHw4Hy2iU-i1IvElLw3Uuf0aV)
+- **Information for Visualization portal**: [FoodFlowPortal](https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model)
+- **Troubleshooting**: [Hugging Face - Troubleshooting](https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model)
 
 ### Direct Use
 - Predicting food flows between regions using node (county/FAF zone) and edge features
@@ -93,10 +96,8 @@ Users should:
   - County shapefiles (`code/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp`)
   - State shapefiles (`code/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp`)
   - FAF zones shapefiles (`code/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp`)
-- **Economic Indicators**: County-level economic data (`code/data/faf_features_aligned_filtered.csv`)
-- **Distance Information**: FAF Distance Matrix (`code/data/FAF_distance_Matrix.csv`)
-
-Other required data can be downloaded via [Google Drive](https://drive.google.com/drive/folders/1mnlbiRvBHw4Hy2iU-i1IvElLw3Uuf0aV?usp=drive_link), due to the limitation of file sizes.
+- **Economic Indicators**: County-level economic data (`code/data/faf_features.csv`)
+- **Distance Information**: FAF Distance Matrix (`code/data/FAF_Distance_Matrix.csv`)
 
 ### Acknowledgements
 National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)

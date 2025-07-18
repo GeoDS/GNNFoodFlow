@@ -4,7 +4,7 @@
 project:
   name: "County-Level Trade Flow Prediction"
   description: "Predicting trade flows between counties using Graph Neural Networks"
-  version: "1.0.0"
+  version: "1.5.0"
 
 # Environment and dependencies
 environment:
@@ -94,3 +94,10 @@ evaluation:
     - "mse"
     - "rmse"
     - "r2"
+
+modelFeatures:
+  - Graph Attention Networks (GAT)
+  - Graph Convolutional Networks (GCN)
+  - Hurdle model for zero-inflated regression
+  - Edge feature processing
+  - Node embedding

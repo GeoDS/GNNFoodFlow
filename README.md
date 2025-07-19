@@ -63,6 +63,13 @@ This design better handles the sparse nature of trade networks where many county
 - Predicting food flows between regions using node (county/FAF zone) and edge features
 - Modeling economic connectivity and transportation dependency
 
+### Visulization Portal
+- For visualization, download [processed_results](https://drive.google.com/drive/u/1/folders/1r6hdnym5wU3DOawecwknBP13VDMOcB7c) from Google Drive and save in cleaned_data folder.
+
+- Install Dependencies
+
+- streamlit run app.py
+
 ### Downstream Use
 - Spatial forecasting of trade changes under policy shifts
 - Identifying critical counties for supply chain resilience
@@ -98,4 +105,4 @@ National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfra
 ### Future Work
 - Extending the model to handle inter-county food trade flow predictions
 - Refining the model to capture more granular food trade patterns
-- Implementing visualization tools for inter-county food trade networks
+

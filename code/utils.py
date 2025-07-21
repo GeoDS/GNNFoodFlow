@@ -2,7 +2,7 @@ import torch
 import torch.nn.functional as F
 
 # Training function
-def train(model, train_data, criterion, optimizer):
+def train(model, train_data, criterion, optimizer, classification_criterion):
     model.train()
     optimizer.zero_grad()
 
@@ -14,7 +14,8 @@ def train(model, train_data, criterion, optimizer):
     regression_loss = criterion(pred_value, train_data.y)
 
     # Calculate binary classification loss (BCE)
-    classification_loss = F.binary_cross_entropy(pred_exists, trade_exists_target)
+    # classification_loss = F.binary_cross_entropy(pred_exists, trade_exists_target)
+    classification_loss = classification_criterion(pred_exists, trade_exists_target)
 
     # Combined loss
     alpha = classification_loss / (classification_loss + regression_loss + 1e-8)

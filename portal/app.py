@@ -729,7 +729,7 @@ else:
         st.markdown("### 📥 Download Options")
 
         # Create download buttons for different data formats
-        col1, col2, col3 = st.columns(3)
+        col1, col3 = st.columns(2)
 
         with col1:
             st.markdown("""
@@ -740,12 +740,14 @@ else:
                         box-shadow: 0 4px 16px rgba(0,0,0,0.06);
                         height: 100%;">
                 <h4 style="margin: 0 0 0.75rem 0; color: #1f2937;">Current Filtered Data</h4>
-                <p style="margin: 0 0 1rem 0; color: #6b7280; font-size: 0.9rem;">
+                <p style="margin: 0 0 1.5rem 0; color: #6b7280; font-size: 0.9rem;">
                     Download the data currently displayed on the map based on your selected filters.
                 </p>
             """, unsafe_allow_html=True)
 
-            # Convert filtered data to CSV for download
+            # Add vertical space before the download button
+            st.markdown("<div style='margin-top: 1.2rem;'></div>", unsafe_allow_html=True)
+
             if len(filt) > 0:
                 csv_data = filt.to_csv(index=False)
                 st.download_button(
@@ -758,29 +760,6 @@ else:
                 st.warning("No data available for current filters")
             st.markdown("</div>", unsafe_allow_html=True)
 
-        with col2:
-            st.markdown("""
-            <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-                        padding: 1.5rem;
-                        border-radius: 12px;
-                        border: 1px solid #e5e7eb;
-                        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-                        height: 100%;">
-                <h4 style="margin: 0 0 0.75rem 0; color: #1f2937;">County Metadata</h4>
-                <p style="margin: 0 0 1rem 0; color: #6b7280; font-size: 0.9rem;">
-                    Download the complete county information including FIPS codes, names, and states.
-                </p>
-            """, unsafe_allow_html=True)
-
-            metadata_csv = META.to_csv(index=False)
-            st.download_button(
-                label="Download Counties",
-                data=metadata_csv,
-                file_name="county_metadata.csv",
-                mime="text/csv"
-            )
-            st.markdown("</div>", unsafe_allow_html=True)
-
         with col3:
             st.markdown("""
             <div style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -790,10 +769,13 @@ else:
                         box-shadow: 0 4px 16px rgba(0,0,0,0.06);
                         height: 100%;">
                 <h4 style="margin: 0 0 0.75rem 0; color: #1f2937;">Summary Statistics</h4>
-                <p style="margin: 0 0 1rem 0; color: #6b7280; font-size: 0.9rem;">
+                <p style="margin: 0 0 1.5rem 0; color: #6b7280; font-size: 0.9rem;">
                     Download summary statistics for the current food category.
                 </p>
             """, unsafe_allow_html=True)
+
+            # Add vertical space before the download button
+            st.markdown("<div style='margin-top: 1.2rem;'></div>", unsafe_allow_html=True)
 
             if len(filt) > 0:
                 summary_stats = filt.groupby(['origin', 'dest'])['predicted_value_original'].sum().reset_index()
@@ -814,57 +796,77 @@ else:
             st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown("---")
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
-                    padding: 1.5rem;
-                    border-radius: 12px;
-                    border: 1px solid #fde68a;
-                    margin-bottom: 1.5rem;">
-            <h3 style="margin: 0 0 1rem 0; color: #92400e;">Data Description</h3>
-
-            <div style="margin-bottom: 1.5rem;">
-                <h4 style="color: #92400e; margin-bottom: 0.5rem;">Food Flow Data Fields:</h4>
-                <ul style="color: #78350f; line-height: 1.6;">
-                    <li><code>origin</code>: Origin county FIPS code</li>
-                    <li><code>dest</code>: Destination county FIPS code</li>
-                    <li><code>origin_x</code>, <code>origin_y</code>: Origin county coordinates</li>
-                    <li><code>dest_x</code>, <code>dest_y</code>: Destination county coordinates</li>
-                    <li><code>predicted_value_original</code>: Tons of food shipped (GNN prediction)</li>
-                    <li><code>exist_prob</code>: Probability that this flow exists</li>
-                    <li><code>sctg</code>: Food category code (1-7)</li>
-                </ul>
+        # --- Data Description Card ---
+        st.markdown(
+            """
+            <div style="background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+                        padding: 1.5rem;
+                        border-radius: 12px;
+                        border: 1px solid #fde68a;
+                        margin-bottom: 1.5rem;">
+                <h3 style="margin: 0 0 1rem 0; color: #92400e;">Data Description</h3>
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: #92400e; margin-bottom: 0.5rem;">Food Flow Data Fields:</h4>
+                    <table style="color: #78350f; font-size: 0.98rem; border-collapse: collapse;">
+                        <tr><td style="padding: 2px 8px;"><code>origin</code></td><td>Origin county FIPS code</td></tr>
+                        <tr><td style="padding: 2px 8px;"><code>dest</code></td><td>Destination county FIPS code</td></tr>
+                        <tr><td style="padding: 2px 8px;"><code>origin_x</code>, <code>origin_y</code></td><td>Origin county coordinates</td></tr>
+                        <tr><td style="padding: 2px 8px;"><code>dest_x</code>, <code>dest_y</code></td><td>Destination county coordinates</td></tr>
+                        <tr><td style="padding: 2px 8px;"><code>predicted_value_original</code></td><td>Tons of food shipped (GNN prediction)</td></tr>
+                        <tr><td style="padding: 2px 8px;"><code>exist_prob</code></td><td>Probability that this flow exists</td></tr>
+                        <tr><td style="padding: 2px 8px;"><code>sctg</code></td><td>Food category code (1-7)</td></tr>
+                    </table>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <h4 style="color: #92400e; margin-bottom: 0.5rem;">County Metadata Fields:</h4>
+                    <table style="color: #78350f; font-size: 0.98rem; border-collapse: collapse;">
+                        <tr><td style="padding: 2px 8px;"><code>FIPS</code></td><td>Federal Information Processing Standards county code</td></tr>
+                        <tr><td style="padding: 2px 8px;"><code>County</code></td><td>County name</td></tr>
+                        <tr><td style="padding: 2px 8px;"><code>State</code></td><td>State name</td></tr>
+                    </table>
+                </div>
+                <p style="color: #78350f; margin: 0; font-weight: 500;">
+                    <strong>Data Source:</strong> FAF (Freight Analysis Framework) 2017 with Graph Neural Network predictions
+                </p>
             </div>
+            """,
+            unsafe_allow_html=True
+        )
 
-            <div style="margin-bottom: 1.5rem;">
-                <h4 style="color: #92400e; margin-bottom: 0.5rem;">County Metadata Fields:</h4>
-                <ul style="color: #78350f; line-height: 1.6;">
-                    <li><code>FIPS</code>: Federal Information Processing Standards county code</li>
-                    <li><code>County</code>: County name</li>
-                    <li><code>State</code>: State name</li>
-                </ul>
+        # --- Filter Information Card ---
+        st.markdown(
+            f"""
+            <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+                        padding: 1.5rem;
+                        border-radius: 12px;
+                        border: 1px solid #bae6fd;">
+                <h3 style="margin: 0 0 1rem 0; color: #0c4a6e;">Filter Information</h3>
+                <div style="color: #0369a1; line-height: 1.6;">
+                    <p style="margin: 0 0 0.5rem 0;"><strong>Current Filters Applied:</strong></p>
+                    <table style="margin: 0; padding-left: 0; color: #0369a1; font-size: 1rem;">
+                        <tr>
+                            <td style="padding: 2px 12px 2px 0;"><strong>Food Category:</strong></td>
+                            <td>{cat}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 2px 12px 2px 0;"><strong>Origin:</strong></td>
+                            <td>{origin_lbl}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 2px 12px 2px 0;"><strong>Destination:</strong></td>
+                            <td>{dest_lbl}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 2px 12px 2px 0;"><strong>Total Records:</strong></td>
+                            <td>{len(filt):,}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 2px 12px 2px 0;"><strong>Total Tons:</strong></td>
+                            <td>{filt['predicted_value_original'].sum():,.1f}</td>
+                        </tr>
+                    </table>
+                </div>
             </div>
-
-            <p style="color: #78350f; margin: 0; font-weight: 500;">
-                <strong>Data Source:</strong> FAF (Freight Analysis Framework) 2017 with Graph Neural Network predictions
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-                    padding: 1.5rem;
-                    border-radius: 12px;
-                    border: 1px solid #bae6fd;">
-            <h3 style="margin: 0 0 1rem 0; color: #0c4a6e;">Filter Information</h3>
-            <div style="color: #0369a1; line-height: 1.6;">
-                <p style="margin: 0 0 0.5rem 0;"><strong>Current Filters Applied:</strong></p>
-                <ul style="margin: 0; padding-left: 1.5rem;">
-                    <li><strong>Food Category:</strong> """ + cat + """</li>
-                    <li><strong>Origin:</strong> """ + origin_lbl + """</li>
-                    <li><strong>Destination:</strong> """ + dest_lbl + """</li>
-                    <li><strong>Total Records:</strong> """ + f"{len(filt):,}" + """</li>
-                    <li><strong>Total Tons:</strong> """ + f"{filt['predicted_value_original'].sum():,.1f}" + """</li>
-                </ul>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True
+        )

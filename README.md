@@ -15,9 +15,6 @@ This repository contains the core implementation for the FoodFlow GNN model. For
 ## License
 MIT
 
-## Acknowledgements
-National Science Foundation (NSF) funded AI Institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
-
 ## How-To Guides
 
 ### How to Implement a Hurdle Model for Trade Prediction

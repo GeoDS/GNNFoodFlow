@@ -12,8 +12,6 @@ Tags: Smart-Foodsheds, AI4CI
 - **Framework**: PyTorch, PyTorch Geometric
 This repository contains the core implementation for the FoodFlow GNN model. For comprehensive usage instructions, detailed tutorials, and visualization tools, please visit: [https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model](https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model)
 
-## Tutorials
-
 ## License
 MIT
 

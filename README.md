@@ -4,6 +4,7 @@ A project leveraging Graph Neural Networks (GNNs) to predict food flows between 
 Tags: Smart-Foodsheds, AI4CI
 
 Great News! The portal is now online at https://gnnfoodflowportal.pods.icicleai.tapis.io/
+
 Please go to https://github.com/ICICLE-ai/GNNFoodFlowPortal/ for more updated information and better accessability
 
 ## Model Details

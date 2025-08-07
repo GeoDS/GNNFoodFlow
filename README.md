@@ -71,6 +71,7 @@ This design better handles the sparse nature of trade networks where many county
 
 The visualization portal has moved!  
 Please visit the new portal here: **[GNN Food Flow Portal](https://gnnfoodflowportal.pods.icicleai.tapis.io/)** for the latest interactive visualization and download features.
+
 Please go to https://github.com/ICICLE-ai/GNNFoodFlowPortal/ for more updated information and better accessability
 
 ### Downstream Use

@@ -3,6 +3,9 @@ A project leveraging Graph Neural Networks (GNNs) to predict food flows between 
 
 Tags: Smart-Foodsheds, AI4CI
 
+Great News! The portal is now online at https://gnnfoodflowportal.pods.icicleai.tapis.io/
+Please go to https://github.com/ICICLE-ai/GNNFoodFlowPortal/ for more updated information and better accessability
+
 ## Model Details
 - **Developed by**: Qianheng Zhang & ICICLE Team
 - **Funded by**: NSF AI Institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
@@ -58,7 +61,7 @@ This design better handles the sparse nature of trade networks where many county
 - Predicting food flows between regions using node (county/FAF zone) and edge features
 - Modeling economic connectivity and transportation dependency
 
-### Visulization Portal
+### Visualization Portal
 - For visualization, download [processed_results](https://drive.google.com/drive/u/1/folders/1r6hdnym5wU3DOawecwknBP13VDMOcB7c) from Google Drive and save in cleaned_data folder.
 
 - Install Dependencies
@@ -88,11 +91,13 @@ Users should:
 ### Data Sources
 - **Trade Data**: [FAF5.6.1 SCTG1 commodity flow data](https://faf.ornl.gov/faf5/) (`code/data/FAF5_SCTG1.csv`)
 - **Geographic Information**:
-  - County shapefiles (`code/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp`)
-  - State shapefiles (`code/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp`)
-  - FAF zones shapefiles (`code/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp`)
-- **Economic Indicators**: County-level economic data (`code/data/faf_features.csv`)
+  - County shapefiles (`portal/code/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp`)
+  - State shapefiles (`portal/code/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp`)
+  - FAF zones shapefiles (`portal/code/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp`)
+- **FAF Economic Indicators**: FAF-level economic data (`code/data/faf_features_aligned_filtered.csv`)
+- **County Economic Indicators**: County-level economic data (`code/data/county_aligned_filtered.csv`)
 - **Distance Information**: FAF Distance Matrix (`code/data/FAF_Distance_Matrix.csv`)
+Due to the low efficiency of separating county level distance matrix, the distance information is included within county level feature information
 
 ### Acknowledgements
 National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)

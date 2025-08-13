@@ -1,0 +1,32 @@
+id: FoodFlowGNN:1.0.0
+name: Food Flow Prediction GNN
+owner: Qianheng Zhang
+primary_thrust: useInspired/SF
+status: Production
+description: Graph Neural Network models for predicting food flow between FAF zones using GAT and GCN architectures
+component_version: 1.0.0
+target_icicle_release: 2025-08
+license: MIT
+website: https://github.com/GeoDS/GNNFoodFlow
+source_code: https://github.com/GeoDS/GNNFoodFlow
+release_notes: ""
+doi: ""
+citation: ""
+pypi_package: ""
+container_image: ""
+hpc_module: ""
+unix_package: ""
+rust_crate: ""
+java_jar: ""
+artifact_other: ""
+code_review_conducted: false
+tests_written: false
+security_review_conducted: false
+bias_assessment_conducted: false
+usage_documentation_available: true
+usage_documentation_url: https://github.com/GeoDS/GNNFoodFlow#readme
+developer_documentation_available: false
+developer_documentation_url: ""
+training_tutorials_available: false
+training_tutorials_url: ""
+usage_metrics_collected: false

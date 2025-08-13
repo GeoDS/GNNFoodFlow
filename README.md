@@ -69,7 +69,7 @@ This design better handles the sparse nature of trade networks where many county
 
 ~~- streamlit run app.py~~
 
-The visualization portal has moved!  
+The visualization portal has moved!
 Please visit the new portal here: **[GNN Food Flow Portal](https://gnnfoodflowportal.pods.icicleai.tapis.io/)** for the latest interactive visualization and download features.
 
 Please go to https://github.com/ICICLE-ai/GNNFoodFlowPortal/ for more updated information and better accessability
@@ -102,7 +102,7 @@ Users should:
   - FAF zones shapefiles (`portal/code/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp`)
 - **FAF Economic Indicators**: FAF-level economic data (`code/data/faf_features_aligned_filtered.csv`)
 - **County Economic Indicators**: County-level economic data (`code/data/county_aligned_filtered.csv`)
-- **Distance Information**: FAF Distance Matrix (`code/data/FAF_Distance_Matrix.csv`)
+- **Distance Information**: FAF Distance Matrix (`code/data/FAF_distance_Matrix.csv`)
 Due to the low efficiency of separating county level distance matrix, the distance information is included within county level feature information
 
 ### Acknowledgements

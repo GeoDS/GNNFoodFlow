@@ -6,7 +6,7 @@ status: Prototype
 description: Graph Neural Network models for predicting food flow between FAF zones using GAT and GCN architectures
 componentVersion: 1.5.0
 targetIcicleRelease: 2025-08
-licenseUrl: https://github.com/GeoDS/GNNFoodFlow/blob/main/LICENSE
+licenseUrl: https://github.com/GeoDS/GNNFoodFlow/blob/master/LICENSE
 website: https://github.com/GeoDS/GNNFoodFlow
 sourceCodeUrl: https://github.com/GeoDS/GNNFoodFlow
 releaseNotesUrl: ""

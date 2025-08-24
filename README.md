@@ -22,7 +22,7 @@ MIT
 ## Reference
 If you find our code or ideas useful for your research, please cite our paper:
 
-*Zhang, Q., Dev, P., Miller, M., Morales, A., &  Gao, S. (2025). [Scalable Inter-County Food Flow Prediction Using Graph Neural Networks](https://doi.org/10.1145/3748636. 3764168). ACM SIGSPATIAL '25, November 3–6, 2025, Minneapolis, MN, USA , 1-10.*
+*Zhang, Q., Dev, P., Miller, M., Morales, A., &  Gao, S. (2025). [Scalable Inter-County Food Flow Prediction Using Graph Neural Networks](https://doi.org/10.1145/3748636.3764168). ACM SIGSPATIAL '25, November 3–6, 2025, Minneapolis, MN, USA , 1-10.*
 
 ```
 @article{zhang2025scalable,

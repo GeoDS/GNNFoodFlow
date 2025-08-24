@@ -8,7 +8,7 @@ Great News! The portal is now online at https://gnnfoodflowportal.pods.icicleai.
 Please go to https://github.com/ICICLE-ai/GNNFoodFlowPortal/ for more updated information and better accessability
 
 ## Model Details
-- **Developed by**: Qianheng Zhang & ICICLE Team
+- **Developed by**: Qianheng Zhang & ICICLE Food Systems Team led by Professor Song Gao
 - **Funded by**: NSF AI Institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
 - **Model type**: Graph Neural Network (GAT and GCN variants)
 - **Language(s)**: English (for documentation and metadata)
@@ -19,6 +19,24 @@ This repository contains the core implementation for the FoodFlow GNN model. For
 ## License
 MIT
 
+## Reference
+If you find our code or ideas useful for your research, please cite our paper:
+
+*Zhang, Q., Dev, P., Miller, M., Morales, A., &  Gao, S. (2025). [Scalable Inter-County Food Flow Prediction Using Graph Neural Networks](https://arxiv.org/pdf/2505.17136). ACM SIGSPATIAL '25, November 3–6, 2025, Minneapolis, MN, USA , 1-10.*
+
+```
+@article{zhang2025,
+  title={Scalable Inter-County Food Flow Prediction Using Graph Neural Networks},
+  author={Qianheng Zhang and Dev Paul and Michelle Miller and Alfonso Morales and Song Gao.},
+  journal={The 33rd ACM International Conference on Advances in Geographic
+Information Systems (SIGSPATIAL ’25)},
+  volume={2025},
+  number={1},
+  pages={1--10},
+  year={2025},
+  publisher={ACM}
+}
+```
 ## How-To Guides
 
 ### How to Implement a Hurdle Model for Trade Prediction

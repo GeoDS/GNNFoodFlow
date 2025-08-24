@@ -62,15 +62,8 @@ This design better handles the sparse nature of trade networks where many county
 - Predicting food flows between regions using node (county/FAF zone) and edge features
 - Modeling economic connectivity and transportation dependency
 
-### ~~Visualization Portal~~
-~~- For visualization, download [processed_results](https://drive.google.com/drive/u/1/folders/1r6hdnym5wU3DOawecwknBP13VDMOcB7c) from Google Drive and save in cleaned_data folder.~~
-
-~~- Install Dependencies~~
-
-~~- streamlit run app.py~~
-
-The visualization portal has moved!
-Please visit the new portal here: **[GNN Food Flow Portal](https://gnnfoodflowportal.pods.icicleai.tapis.io/)** for the latest interactive visualization and download features.
+### Visualization Portal
+Please visit the new online portal here: **[GNN Food Flow Portal](https://gnnfoodflowportal.pods.icicleai.tapis.io/)** for the latest interactive visualization and download features.
 
 Please go to https://github.com/ICICLE-ai/GNNFoodFlowPortal/ for more updated information and better accessability
 

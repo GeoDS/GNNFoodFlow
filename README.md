@@ -1,5 +1,5 @@
 # Multi-Scale Food Flow Prediction using Graph Neural Networks
-A project leveraging Graph Neural Networks (GNNs) to predict food flows between counties and FAF zones for economic planning, infrastructure development, and policy-making. This model predicts food trade flows between U.S. counties and Freight Analysis Framework (FAF) zones using Graph Neural Networks (GNNs). It addresses the challenges of sparsity in trade data by applying a two-stage hurdle model that distinguishes between the presence and magnitude of trade.
+An [NSF-AI Institute ICICLE project](https://icicle.osu.edu/) leveraging Graph Neural Networks (GNNs) to predict food flows between counties and FAF zones for economic planning, infrastructure development, and policy-making. This model predicts food trade flows between U.S. counties and Freight Analysis Framework (FAF) zones using Graph Neural Networks (GNNs). It addresses the challenges of sparsity in trade data by applying a two-stage hurdle model that distinguishes between the presence and magnitude of trade.
 
 Tags: Smart-Foodsheds, AI4CI
 

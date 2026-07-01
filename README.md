@@ -1,5 +1,6 @@
-# Multi-Scale Food Flow Prediction using Graph Neural Networks
-An [NSF-AI Institute ICICLE project](https://icicle.osu.edu/) leveraging Graph Neural Networks (GNNs) to predict food flows between counties and FAF zones for economic planning, infrastructure development, and policy-making. This model predicts food trade flows between U.S. counties and Freight Analysis Framework (FAF) zones using Graph Neural Networks (GNNs). It addresses the challenges of sparsity in trade data by applying a two-stage hurdle model that distinguishes between the presence and magnitude of trade.
+# Multi-Type Food Flow Prediction using Graph Neural Networks
+
+An [NSF-AI Institute ICICLE project](https://icicle.osu.edu/) leveraging Graph Neural Networks (GNNs) to predict food flows between counties and FAF zones for economic planning, infrastructure development, and policy-making. This repository contains the core implementation of **MT-LocalizedGCN**, a spatially localized multi-task graph convolutional network that predicts food trade flows across seven SCTG commodity categories (SCTG 01–07) simultaneously. The model is trained on Freight Analysis Framework (FAF) zone origin–destination (OD) flows and can be transferred to county features for county-to-county cross-scale inference. It addresses the sparsity of trade data with a two-stage hurdle formulation that distinguishes the presence of trade from its magnitude.
 
 Tags: Smart-Foodsheds, AI4CI, Food-Systems, Food-Access
 
@@ -7,14 +8,83 @@ Great News! The portal is now online at https://gnnfoodflowportal.pods.icicleai.
 
 Please go to https://github.com/ICICLE-ai/GNNFoodFlowPortal/ for more updated information and better accessability
 
+> **Note on model versions.** This is a new multi-task model: a *single*
+> `MTLocalizedGCN` now predicts all seven SCTG categories at once,
+> replacing the earlier approach that trained one checkpoint per SCTG code.
+> The original single-task implementation is archived in [`legacy/`](legacy/)
+> for reference.
+
 ## Model Details
 - **Developed by**: Qianheng Zhang & ICICLE Food Systems Team led by Professor Song Gao
 - **Funded by**: NSF AI Institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
-- **Model type**: Graph Neural Network (GAT and GCN variants)
+- **Model type**: Multi-task Graph Neural Network — **MT-LocalizedGCN** (a distance-kNN localized GCN; `MTEdgeMLP` non-spatial baseline also provided)
 - **Language(s)**: English (for documentation and metadata)
 - **License**: MIT License
 - **Framework**: PyTorch, PyTorch Geometric
-This repository contains the core implementation for the FoodFlow GNN model. For comprehensive usage instructions, detailed tutorials, and visualization tools, please visit: [https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model](https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model)
+
+This repository contains the minimal core implementation for the multi-task FoodFlow GNN model. It intentionally excludes the web portal and large precomputed county prediction CSVs — the portal lives in a separate repository, and full prediction outputs should be generated locally or distributed through an external data host. _Comprehensive usage instructions and tutorials on Hugging Face are being updated for the multi-task (MT-LocalizedGCN) model and will be linked here once available._
+
+## Contents
+
+```text
+code/
+├── model.py                    # MTEdgeMLP and MTLocalizedGCN
+├── dataset.py                  # FAF SCTG 01-07 multitask loader
+├── train.py                    # multitask hurdle loss and metrics
+├── run_multitask.py            # training entry point
+├── run_inference.py            # county cross-scale inference entry point
+├── sample_multitask.ipynb      # minimal usage notebook
+├── data/                       # compact FAF/county input data
+├── artifacts/                  # county inference artifacts and edge scaler
+├── models/                     # saved multitask checkpoint
+└── results/                    # small metric-summary CSVs only
+legacy/                         # archived single-task (per-SCTG) implementation
+portal/                         # visualization portal assets
+```
+
+## Quick Start
+
+Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Run a one-epoch smoke test:
+
+```bash
+python code/run_multitask.py --epochs 1 --hidden 32 --log_every 1 --no_pos_weight --no_save
+```
+
+Run the default training protocol:
+
+```bash
+python code/run_multitask.py
+```
+
+Generate county-to-county predictions:
+
+```bash
+python code/run_inference.py --all-county-crossscale --out predictions_county_crossscale.csv
+```
+
+The generated county prediction CSV is large and is not committed here. See [`REPRODUCE.md`](REPRODUCE.md) for the full reproduction protocol.
+
+## Model Notes
+
+- Food categories: SCTG 01–07.
+- Default architecture: `MTLocalizedGCN` (distance-kNN localized graph, `k=5`).
+- Task heads: one hurdle head per SCTG category (seven total), sharing one GCN backbone.
+- County-scale outputs are model-inferred flows, not observed county ground truth.
+- The bundled summary CSVs in `code/results/` are lightweight checks, not the complete paper evidence archive.
+
+## Legacy (Single-Task) Model
+
+The original implementation trained a separate GAT/GCN checkpoint per SCTG
+commodity code (`best_model1_gcn.pth` … `best_model7_gcn.pth`). That code,
+its notebooks, checkpoints, and original documentation are preserved under
+[`legacy/`](legacy/). It is kept for reference and is not guaranteed to run
+against the current top-level layout.
 
 ## License
 MIT
@@ -38,44 +108,11 @@ Information Systems (SIGSPATIAL ’25)},
   publisher={ACM}
 }
 ```
-## How-To Guides
-
-### How to Implement a Hurdle Model for Trade Prediction
-- **Problem**: Predicting trade flows with many zero values
-- **Solution**: Implement a two-stage hurdle model that:
-  1. First predicts whether trade exists between two regions
-  2. Then estimates the volume of trade when it exists
-- **Code example**: See the GAT model implementation in `code/model.py`
-- **Results**: See the resulted models in `code/models`, note that models for different SCTG02 codes has to be trained separately
-
-### Prerequisites
-- Python 3.9+
-- PyTorch (>=1.9.0)
-- PyTorch Geometric (>=2.0.0)
-- Other dependencies (see Hugging Face page for complete list)
-
-### How to Incorporate Geographic and Economic Features
-- **Problem**: Capturing complex relationships in trade networks
-- **Solution**: Combine multiple feature types:
-  - County-level economic indicators (population, employment_rate, median_income)
-  - Geographic distance and transportation modes
-  - Industry diversity metrics
-
-## Explanation
-
-### Graph Neural Networks for Trade Flow Prediction
-Our approach uses Graph Neural Networks to model trade relationships between counties and FAF zones. The model architecture includes:
-- Graph Attention Networks (GAT) to capture the importance of different connections
-- Graph Convolutional Networks (GCN) for comparison
-- A hurdle model approach that separates the prediction into classification and regression tasks
-
-This design better handles the sparse nature of trade networks where many county pairs have zero trade. The model learns both from geographic proximity and economic similarity, providing more accurate predictions than traditional statistical methods.
 
 ## For Detailed Usage
-- **Complete setup instructions**: [Hugging Face - Setup Instructions](https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model)
-- **Data download links**: [FoodFlow Inference Data](https://drive.google.com/drive/u/0/folders/1mnlbiRvBHw4Hy2iU-i1IvElLw3Uuf0aV)
-- **Information for Visualization portal**: [FoodFlowPortal](https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model)
-- **Troubleshooting**: [Hugging Face - Troubleshooting](https://huggingface.co/ICICLE-AI/FoodFlow_GNN_Model)
+> _Detailed setup instructions, tutorials, data download links, and troubleshooting on Hugging Face are being updated for the multi-task (MT-LocalizedGCN) model and will be linked here once available._
+
+For the interactive visualization portal, see the **[GNN Food Flow Portal](https://gnnfoodflowportal.pods.icicleai.tapis.io/)** and its repository at [ICICLE-ai/GNNFoodFlowPortal](https://github.com/ICICLE-ai/GNNFoodFlowPortal/).
 
 ### Direct Use
 - Predicting food flows between regions using node (county/FAF zone) and edge features
@@ -96,7 +133,7 @@ Please go to https://github.com/ICICLE-ai/GNNFoodFlowPortal/ for more updated in
 
 ## Bias, Risks, and Limitations
 - **Bias**: Model predictions depend on historical FAF data and may not reflect unexpected future disruptions (e.g., disasters, pandemics)
-- **Limitations**: Prediction is limited to predefined commodity codes (SCTG1)
+- **Limitations**: Prediction is limited to the predefined commodity codes SCTG 01–07
 - **Data quality**: Assumes accuracy of FAF flow data and economic indicators
 
 ## Recommendations
@@ -107,20 +144,19 @@ Users should:
 ## Reference
 
 ### Data Sources
-- **Trade Data**: [FAF5.6.1 SCTG1 commodity flow data](https://faf.ornl.gov/faf5/) (`code/data/FAF5_SCTG1.csv`)
+- **Trade Data**: [FAF5.6.1 SCTG 01–07 commodity flow data](https://faf.ornl.gov/faf5/) (`code/data/FAF5_SCTG1.csv` … `code/data/FAF5_SCTG7.csv`)
 - **Geographic Information**:
-  - County shapefiles (`portal/code/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp`)
-  - State shapefiles (`portal/code/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp`)
-  - FAF zones shapefiles (`portal/code/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp`)
+  - County shapefiles (`portal/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp`)
+  - State shapefiles (`portal/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp`)
+  - FAF zones shapefiles (`portal/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp`)
 - **FAF Economic Indicators**: FAF-level economic data (`code/data/faf_features_aligned_filtered.csv`)
 - **County Economic Indicators**: County-level economic data (`code/data/county_aligned_filtered.csv`)
-- **Distance Information**: FAF Distance Matrix (`code/data/FAF_distance_Matrix.csv`)
+- **Distance Information**: FAF Distance Matrix (`code/data/FAF_distance_matrix.csv`)
 Due to the low efficiency of separating county level distance matrix, the distance information is included within county level feature information
 
 ### Acknowledgements
 National Science Foundation (NSF) funded AI institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
 
 ### Future Work
-- Extending the model to handle inter-county food trade flow predictions
-- Refining the model to capture more granular food trade patterns
-
+- Refining the multi-task model to capture more granular food trade patterns
+- Extending cross-scale transfer to additional commodity groups and finer spatial resolutions

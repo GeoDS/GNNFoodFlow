@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.ipynb_checkpoints/
+
+# Large generated outputs
+predictions_county_crossscale.csv
+predictions_county_crossscale*.csv
+calibration/
+archive/
+
+# Local environments
+.venv/
+venv/
+env/
+

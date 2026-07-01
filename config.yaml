@@ -1,103 +1,106 @@
-# config.yaml - Configuration for County-Level Trade Flow Prediction using GNNs
+# config.yaml - Configuration for Multi-Type Food Flow Prediction using GNNs
+#
+# This version describes the multi-task model in `code/` (MT-LocalizedGCN),
+# which predicts all seven SCTG food commodity categories with a single network.
+# The previous single-task configuration is archived at `legacy/config.yaml`.
 
 # Project information
 project:
-  name: "County-Level Trade Flow Prediction"
-  description: "Predicting trade flows between counties using Graph Neural Networks"
-  version: "1.5.0"
+  name: "Multi-Type Food Flow Prediction"
+  description: "Predicting FAF-zone and cross-scale county food flows for SCTG 01-07 with MT-LocalizedGCN, a single multi-task GNN"
+  version: "2.0.0"
 
 # Environment and dependencies
 environment:
-  python_version: "3.8"
+  python_version: "3.9"
   dependencies:
-    - pytorch>=1.9.0
-    - pandas>=1.3.0
-    - numpy>=1.20.0
-    - matplotlib>=3.4.0
-    - scikit-learn>=0.24.0
-    - networkx>=2.6.0
-    - geopandas>=0.9.0
-    - torch-geometric>=2.0.0
-    - tqdm>=4.62.0
+    - numpy
+    - pandas
+    - scikit-learn
+    - scipy
+    - torch
+    - torch-geometric
 
 # Data paths and configuration
 data:
   shapefiles:
-    county_path: "code/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp"
-    state_path: "code/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp"
-    FAF_zones_path: "code/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp"
+    county_path: "portal/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp"
+    state_path: "portal/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp"
+    FAF_zones_path: "portal/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp"
 
   trade_data:
-    SCTG_01_path: "code/data/FAF5_SCTG1.csv"
+    # One directed OD flow file per SCTG commodity category (01-07)
+    SCTG_paths:
+      - "code/data/FAF5_SCTG1.csv"
+      - "code/data/FAF5_SCTG2.csv"
+      - "code/data/FAF5_SCTG3.csv"
+      - "code/data/FAF5_SCTG4.csv"
+      - "code/data/FAF5_SCTG5.csv"
+      - "code/data/FAF5_SCTG6.csv"
+      - "code/data/FAF5_SCTG7.csv"
 
   economic_indicators:
-    path: "code/data/faf_features.csv"
+    faf_path: "code/data/faf_features_aligned_filtered.csv"
+    county_path: "code/data/county_aligned_filtered.csv"
 
-  FAF_Distance_Matrix:
-    path: "code/data/FAF_Distance_Matrix.csv"
+  distance_matrix:
+    path: "code/data/FAF_distance_matrix.csv"
+
+  # County cross-scale inference artifacts (PCA basis, edge scaler, index maps)
+  artifacts:
+    path: "code/artifacts/"
 
 # Feature engineering configuration
 features:
-  county_features:
-    - "population"
-    - "employment_rate"
-    - "median_income"
-    - "industry_diversity"
-
-
+  node_features:
+    pca_components: 30          # --n_pca
   edge_features:
     - "distance"
     - "dms_mode"
     - "dist_band"
 
-# Model configurations
-models:
-  gat:
-    hidden_channels: 64
-    num_heads: 8
-    num_layers: 3
-    dropout: 0.2
-    learning_rate: 0.001
-    weight_decay: 0.0005
+# Model configuration (multi-task)
+model:
+  name: "localized_gcn"        # MTLocalizedGCN (default); MTEdgeMLP baseline available
+  hidden_channels: 128         # --hidden
+  dropout: 0.2                 # --dropout
+  knn_k: 5                     # distance-kNN graph, --knn_k
+  learning_rate: 0.001         # --lr
+  num_tasks: 7                 # one hurdle head per SCTG category (01-07)
 
-  gcn:
-    hidden_channels: 128
-    num_layers: 4
-    dropout: 0.3
-    learning_rate: 0.001
-    weight_decay: 0.0005
-
-# Hurdle model configuration
+# Hurdle model configuration (per-task)
 hurdle_model:
-  classification:
-    threshold: 0.5
-    class_weight: {0: 1.0, 1: 3.0}  # Handle class imbalance
-
+  # Each SCTG task has its own hurdle head: classification (trade presence)
+  # + regression (trade magnitude), sharing one GCN backbone.
+  positive_class_weighting: true   # disable with --no_pos_weight
   regression:
-    loss: "mse"
-    metrics: ["mae", "rmse", "r2"]
+    metrics: ["cpc", "mae", "rmse", "r2"]
 
 # Training configuration
 training:
-  batch_size: 64
-  epochs: 500
-  test_split: 0.3
+  epochs: 1000                 # --epochs
+  train_ratio: 0.70            # --train_ratio
+  val_ratio: 0.15              # --val_ratio (remaining 0.15 is test)
+  edge_universe: "all_pairs"   # all directed non-self FAF OD pairs
+  selection_metric: "mean_cpc" # validation checkpoint selection
+  edge_scaling: "train_only"
   random_seed: 42
-  device: "cpu"
 
 # Evaluation metrics
 evaluation:
   classification_metrics:
     - "accuracy"
     - "precision"
+    - "roc_auc"
   regression_metrics:
-    - "mse"
+    - "cpc"
+    - "mae"
     - "rmse"
     - "r2"
 
 modelFeatures:
-  - Graph Attention Networks (GAT)
-  - Graph Convolutional Networks (GCN)
-  - Hurdle model for zero-inflated regression
-  - Edge feature processing
-  - Node embedding
+  - Single multi-task GNN predicting SCTG 01-07 simultaneously
+  - Distance-kNN localized GCN backbone (MT-LocalizedGCN)
+  - Seven task-specific hurdle heads for zero-inflated regression
+  - FAF-to-county cross-scale transfer inference
+  - Train-only edge feature scaling

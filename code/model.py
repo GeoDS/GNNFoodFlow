@@ -1,248 +1,236 @@
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.nn.init as init
-import torch.optim as optim
-import torch.utils.data as data
-from torch_geometric.nn import GATConv, GCNConv
+"""
+model.py — MT-LocalizedGCN model architectures (Multi-Type Food Flow).
 
+A single model predicts all 7 SCTG food commodity flows simultaneously via
+seven task-specific hurdle heads over a shared backbone.
 
-class GAT(torch.nn.Module):
-    def __init__(self, in_channels, hidden_channels, edge_feature_dim):
-        super(GAT, self).__init__()
+Architectures:
+  MTEdgeMLP      — shared MLP backbone + 7 independent HurdleHeads (non-spatial baseline)
+  MTLocalizedGCN — shared GCN encoder over a distance-based k-NN (localized)
+                   graph + 7 independent HurdleHeads (the paper's model)
 
-        self.conv1 = GATConv(in_channels, hidden_channels, edge_dim=edge_feature_dim)
-        self.conv2 = GATConv(hidden_channels, hidden_channels * 2, edge_dim=edge_feature_dim)
-        self.conv3 = GATConv(hidden_channels * 2, hidden_channels * 4, edge_dim=edge_feature_dim)
-
-        # Common feature extraction layers
-        self.edge_features = nn.Sequential(
-            nn.Linear(hidden_channels * 4 * 2 + edge_feature_dim, hidden_channels * 4),
-            nn.LeakyReLU(0.01),
-            nn.Linear(hidden_channels * 4, hidden_channels * 2),
-            nn.LeakyReLU(0.01)
-        )
-
-        # Binary classification (hurdle) layer - predicts if trade exists
-        self.trade_classifier = nn.Sequential(
-            nn.Linear(hidden_channels * 2, hidden_channels),
-            nn.LeakyReLU(0.01),
-            nn.Linear(hidden_channels, 1),
-            nn.Sigmoid()
-        )
-
-        # Regression layer - predicts trade value if trade exists
-        self.value_regressor = nn.Sequential(
-            nn.Linear(hidden_channels * 2, hidden_channels),
-            nn.LeakyReLU(0.01),
-            nn.Linear(hidden_channels, 1)
-        )
-
-        # Initialize weights
-        for layer_group in [self.edge_features, self.trade_classifier, self.value_regressor]:
-            for layer in layer_group:
-                if isinstance(layer, nn.Linear):
-                    init.kaiming_normal_(layer.weight, mode='fan_in',
-                                        nonlinearity='leaky_relu' if isinstance(layer, nn.LeakyReLU) else 'linear')
-
-    def forward(self, x, edge_index, edge_attr):
-
-        # Update node embeddings through GNN layers
-        h1 = self.conv1(x, edge_index, edge_attr)
-        h1 = F.leaky_relu(h1, negative_slope=0.01)
-        h2 = self.conv2(h1, edge_index, edge_attr)
-        h2 = F.leaky_relu(h2, negative_slope=0.01)
-        h3 = self.conv3(h2, edge_index, edge_attr)
-        h3 = F.leaky_relu(h3, negative_slope=0.01)
-
-        # For each edge, get source and target node embeddings
-        src, dst = edge_index
-        src_feat = h3[src]
-        dst_feat = h3[dst]
-
-        # Concatenate source, target embeddings with edge features
-        edge_features = torch.cat([src_feat, dst_feat, edge_attr], dim=1)
-
-        # Extract common features
-        common_features = self.edge_features(edge_features)
-        # Predict whether trade exists (binary classification)
-        trade_exists = self.trade_classifier(common_features)
-
-        # Predict trade value (regression)
-        trade_value = self.value_regressor(common_features)
-        # Apply hurdle model: final prediction is trade_exists * trade_value
-        final_pred = trade_exists * trade_value
-
-        return final_pred, trade_exists
+Notes:
+  - forward() returns per-edge (logit, value) of shape (E, n_tasks).
+  - The localized k-NN graph is stored internally as the persistent buffer
+    `sparse_edge_index` (name kept for checkpoint compatibility).
+"""
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.nn import init
 from torch_geometric.nn import GCNConv
 
-class GCN(nn.Module):
-    def __init__(self, in_channels, hidden_channels, edge_feature_dim):
-        super(GCN, self).__init__()
 
-        # GNN layers
-        self.conv1 = GCNConv(in_channels, hidden_channels)
-        self.conv2 = GCNConv(hidden_channels, hidden_channels * 2)
-        self.conv3 = GCNConv(hidden_channels * 2, hidden_channels * 4)
-
-        # Edge feature encoder
-        self.edge_encoder = nn.Sequential(
-            nn.Linear(edge_feature_dim, hidden_channels),
-            nn.LeakyReLU(0.01)
-        )
-
-        # Edge features processing
-        self.edge_features = nn.Sequential(
-            nn.Linear(hidden_channels * 4 * 2 + hidden_channels, hidden_channels * 2),
+class HurdleHead(nn.Module):
+    """
+    Hurdle model output head for one task.
+    Input : (B, hidden_dim)
+    Output: logit (B, 1), value (B, 1)
+    """
+    def __init__(self, hidden_dim: int, dropout: float = 0.2):
+        super().__init__()
+        self.classifier = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim // 2),
             nn.LeakyReLU(0.01),
-            nn.Linear(hidden_channels * 2, hidden_channels)
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim // 2, 1),
         )
-
-        # Trade existence classifier (returning logits)
-        self.trade_classifier_logits = nn.Sequential(
-            nn.Linear(hidden_channels, hidden_channels),
+        self.regressor = nn.Sequential(
+            nn.Linear(hidden_dim, hidden_dim // 2),
             nn.LeakyReLU(0.01),
-            nn.Linear(hidden_channels, 1)  # No sigmoid here
+            nn.Dropout(dropout),
+            nn.Linear(hidden_dim // 2, 1),
         )
 
-        # Trade value regressor
-        self.value_regressor = nn.Sequential(
-            nn.Linear(hidden_channels, hidden_channels),
+    def forward(self, x):
+        return self.classifier(x), self.regressor(x)
+
+
+# ─────────────────────────────────────────────────────────────
+# Model 1 — MTEdgeMLP
+# ─────────────────────────────────────────────────────────────
+
+class MTEdgeMLP(nn.Module):
+    """
+    Shared MLP backbone with 7 independent task heads.
+
+    For each directed edge (i → j):
+      input = [x_i, x_j, edge_feat]   shape: (node_dim*2 + edge_dim,)
+      → shared MLP → shared_repr
+      → head_k(shared_repr) → (logit_k, value_k)  for k in 1..n_tasks
+
+    forward() signature is identical to EdgeMLP.
+    Output shape changes: (E,1) → (E, n_tasks).
+    """
+
+    def __init__(
+        self,
+        node_dim:  int,
+        edge_dim:  int,
+        hidden:    int   = 128,
+        n_tasks:   int   = 7,
+        dropout:   float = 0.2,
+    ):
+        super().__init__()
+        self.n_tasks = n_tasks
+        in_dim = node_dim * 2 + edge_dim
+
+        # Shared backbone — same depth as EdgeMLP
+        self.backbone = nn.Sequential(
+            nn.Linear(in_dim, hidden),
             nn.LeakyReLU(0.01),
-            nn.Linear(hidden_channels, 1)
+            nn.Dropout(dropout),
+            nn.Linear(hidden, hidden),
+            nn.LeakyReLU(0.01),
+            nn.Dropout(dropout),
+            nn.Linear(hidden, hidden // 2),
+            nn.LeakyReLU(0.01),
         )
 
-        # Initialize weights
+        # One independent HurdleHead per task
+        self.heads = nn.ModuleList([
+            HurdleHead(hidden // 2, dropout) for _ in range(n_tasks)
+        ])
+
+        # Kendall uncertainty weighting: log(σ²) per task, init=0 → σ=1 (no reweighting)
+        self.log_sigma2 = nn.Parameter(torch.zeros(n_tasks))
+
         self._init_weights()
 
     def _init_weights(self):
-        for layer_group in [self.edge_encoder, self.edge_features,
-                            self.trade_classifier_logits, self.value_regressor]:
-            for layer in layer_group:
-                if isinstance(layer, nn.Linear):
-                    init.kaiming_normal_(layer.weight, mode='fan_in',
-                                         nonlinearity='leaky_relu')
-
-    def forward(self, x, edge_index, edge_attr, return_logits=False):
-        # Process edge features
-        edge_features_encoded = self.edge_encoder(edge_attr)
-
-        # GCN layers
-        h1 = F.leaky_relu(self.conv1(x, edge_index), negative_slope=0.01)
-        h2 = F.leaky_relu(self.conv2(h1, edge_index), negative_slope=0.01)
-        h3 = F.leaky_relu(self.conv3(h2, edge_index), negative_slope=0.01)
-
-        # Prepare edge-level features
-        src, dst = edge_index
-        src_feat = h3[src]
-        dst_feat = h3[dst]
-        combined_features = torch.cat([src_feat, dst_feat, edge_features_encoded], dim=1)
-
-        # Edge-wise hidden representation
-        common_features = self.edge_features(combined_features)
-
-        # Predict trade existence (logits)
-        trade_logits = self.trade_classifier_logits(common_features)
-        trade_probs = torch.sigmoid(trade_logits)
-
-        # Predict trade value
-        trade_value = self.value_regressor(common_features)
-        
-        # Final prediction = trade probability * value
-        final_pred = trade_probs * trade_value
-
-        if return_logits:
-            return final_pred, trade_probs, trade_logits
-        else:
-            return final_pred, trade_probs
-
-
-
-# Improve the model architecture with better design
-class ImprovedGCN(nn.Module):
-    def __init__(self, in_channels, hidden_channels, edge_feature_dim, num_layers=3, dropout=0.2):
-        super(ImprovedGCN, self).__init__()
-        self.num_layers = num_layers
-        self.dropout = dropout
-
-        # Multiple GCN layers with residual connections
-        self.convs = nn.ModuleList()
-        self.convs.append(GCNConv(in_channels, hidden_channels))
-        for _ in range(num_layers - 2):
-            self.convs.append(GCNConv(hidden_channels, hidden_channels))
-        self.convs.append(GCNConv(hidden_channels, hidden_channels))
-
-        # Edge feature processing
-        self.edge_mlp = nn.Sequential(
-            nn.Linear(edge_feature_dim, hidden_channels // 2),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_channels // 2, hidden_channels // 4)
-        )
-
-        # Hurdle model components
-        # Binary classifier for trade existence
-        self.trade_classifier = nn.Sequential(
-            nn.Linear(hidden_channels * 2 + hidden_channels // 4, hidden_channels),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_channels, hidden_channels // 2),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_channels // 2, 1),
-            nn.Sigmoid()
-        )
-
-        # Regression for trade value (when trade exists)
-        self.value_regressor = nn.Sequential(
-            nn.Linear(hidden_channels * 2 + hidden_channels // 4, hidden_channels),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_channels, hidden_channels // 2),
-            nn.ReLU(),
-            nn.Dropout(dropout),
-            nn.Linear(hidden_channels // 2, 1),
-            nn.ReLU()
-        )
-
-        # Batch normalization
-        self.batch_norms = nn.ModuleList([nn.BatchNorm1d(hidden_channels) for _ in range(num_layers)])
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, nonlinearity="leaky_relu")
+                nn.init.zeros_(m.bias)
 
     def forward(self, x, edge_index, edge_attr):
-        # Node embeddings through GCN layers
-        h = x
-        for i, conv in enumerate(self.convs):
-            h_new = conv(h, edge_index)
-            h_new = self.batch_norms[i](h_new)
-            h_new = F.relu(h_new)
-            h_new = F.dropout(h_new, p=self.dropout, training=self.training)
+        """
+        x          : (N, node_dim)
+        edge_index : (2, E)
+        edge_attr  : (E, edge_dim)
 
-            # Residual connection (except for first layer)
-            if i > 0 and h.shape[1] == h_new.shape[1]:
-                h = h + h_new
-            else:
-                h = h_new
+        Returns
+        -------
+        logit : (E, n_tasks)
+        value : (E, n_tasks)
+        """
+        src, dst = edge_index
+        h = torch.cat([x[src], x[dst], edge_attr], dim=1)
+        shared = self.backbone(h)                           # (E, hidden//2)
 
-        # Process edge features
-        edge_emb = self.edge_mlp(edge_attr)
+        logits = []
+        values = []
+        for head in self.heads:
+            lg, vl = head(shared)
+            logits.append(lg)   # (E, 1)
+            values.append(vl)   # (E, 1)
 
-        # Get source and target node embeddings
-        src_emb = h[edge_index[0]]
-        dst_emb = h[edge_index[1]]
+        logit = torch.cat(logits, dim=1)   # (E, n_tasks)
+        value = torch.cat(values, dim=1)   # (E, n_tasks)
+        return logit, value
 
-        # Combine embeddings
-        edge_input = torch.cat([src_emb, dst_emb, edge_emb], dim=1)
 
-        # Hurdle model predictions
-        trade_exists = self.trade_classifier(edge_input)
-        trade_value = self.value_regressor(edge_input)
+# ─────────────────────────────────────────────────────────────
+# Model 2 — MTLocalizedGCN
+# ─────────────────────────────────────────────────────────────
 
-        # Final prediction: probability of trade * predicted value
-        final_pred = trade_exists * trade_value
+class MTLocalizedGCN(nn.Module):
+    """
+    Shared GCN backbone (k-NN sparse graph) with 7 independent task heads.
 
-        return final_pred, trade_exists
+    forward() signature is identical to LocalizedGCN.
+    Output shape changes: (E,1) → (E, n_tasks).
+    """
+
+    def __init__(
+        self,
+        node_dim:  int,
+        edge_dim:  int,
+        hidden:    int   = 64,
+        n_tasks:   int   = 7,
+        dropout:   float = 0.2,
+        sparse_edge_index = None,
+    ):
+        super().__init__()
+        self.n_tasks = n_tasks
+        # Store k-NN graph as a non-trainable buffer so it's saved with the checkpoint
+        # and forward() doesn't need it as an argument.
+        # If None, register a placeholder — load_state_dict will overwrite it.
+        if sparse_edge_index is None:
+            sparse_edge_index = torch.zeros(2, 0, dtype=torch.long)
+        self.register_buffer("sparse_edge_index", sparse_edge_index)
+
+        # Shared node encoder — two GCN layers
+        self.conv1 = GCNConv(node_dim, hidden)
+        self.conv2 = GCNConv(hidden, hidden * 2)
+        self.bn1   = nn.BatchNorm1d(hidden)
+        self.bn2   = nn.BatchNorm1d(hidden * 2)
+
+        # Shared edge feature encoder
+        self.edge_encoder = nn.Sequential(
+            nn.Linear(edge_dim, hidden),
+            nn.LeakyReLU(0.01),
+        )
+
+        # Shared edge MLP after combining node + edge embeddings
+        combined_dim = hidden * 2 * 2 + hidden   # h_orig + h_dest + edge_enc
+        self.edge_mlp = nn.Sequential(
+            nn.Linear(combined_dim, hidden * 2),
+            nn.LeakyReLU(0.01),
+            nn.Dropout(dropout),
+            nn.Linear(hidden * 2, hidden),
+            nn.LeakyReLU(0.01),
+        )
+
+        # One independent HurdleHead per task
+        self.heads = nn.ModuleList([
+            HurdleHead(hidden, dropout) for _ in range(n_tasks)
+        ])
+
+        # Kendall uncertainty weighting: log(σ²) per task, init=0 → σ=1 (no reweighting)
+        self.log_sigma2 = nn.Parameter(torch.zeros(n_tasks))
+
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, nonlinearity="leaky_relu")
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
+
+    def forward(self, x, edge_index, edge_attr):
+        """
+        x          : (N, node_dim)
+        edge_index : (2, E)   — prediction OD pairs
+        edge_attr  : (E, edge_dim)
+
+        k-NN sparse graph for GCN is stored as self.sparse_edge_index (buffer).
+
+        Returns
+        -------
+        logit : (E, n_tasks)
+        value : (E, n_tasks)
+        """
+        # Shared node embeddings via sparse GCN (k-NN graph stored as buffer)
+        sei = self.sparse_edge_index
+        h = F.leaky_relu(self.bn1(self.conv1(x, sei)), 0.01)
+        h = F.dropout(h, p=0.2, training=self.training)
+        h = F.leaky_relu(self.bn2(self.conv2(h, sei)), 0.01)
+
+        # Shared edge representation
+        src, dst = edge_index
+        edge_enc = self.edge_encoder(edge_attr)
+        combined = torch.cat([h[src], h[dst], edge_enc], dim=1)
+        shared   = self.edge_mlp(combined)                  # (E, hidden)
+
+        logits = []
+        values = []
+        for head in self.heads:
+            lg, vl = head(shared)
+            logits.append(lg)
+            values.append(vl)
+
+        logit = torch.cat(logits, dim=1)   # (E, n_tasks)
+        value = torch.cat(values, dim=1)   # (E, n_tasks)
+        return logit, value

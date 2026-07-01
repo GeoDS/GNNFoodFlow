@@ -1,11 +1,11 @@
-id: FoodFlowGNN:2.0.0
+id: FoodFlowGNN:1.5.0
 name: Food Flow Prediction GNN
 owner: Qianheng Zhang
 primaryThrust: useInspired/SF
 status: Prototype
-description: MT-LocalizedGCN, a multi-task localized graph convolutional network predicting food flow for SCTG 01-07 FAF-zone OD pairs with a single model, transferable to county-scale cross-scale inference
-componentVersion: 2.0.0
-targetIcicleRelease: 2026-08
+description: Graph Neural Network models for predicting food flow between FAF zones using GAT and GCN architectures
+componentVersion: 1.5.0
+targetIcicleRelease: 2025-08
 licenseUrl: https://github.com/GeoDS/GNNFoodFlow/blob/master/LICENSE
 website: https://github.com/GeoDS/GNNFoodFlow
 sourceCodeUrl: https://github.com/GeoDS/GNNFoodFlow

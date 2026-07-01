@@ -23,10 +23,13 @@ environment:
 
 # Data paths and configuration
 data:
+  # Shapefiles are only needed for visualization and now live in the separate
+  # portal repository: https://github.com/ICICLE-ai/GNNFoodFlowPortal
   shapefiles:
-    county_path: "portal/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp"
-    state_path: "portal/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp"
-    FAF_zones_path: "portal/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp"
+    repo: "https://github.com/ICICLE-ai/GNNFoodFlowPortal"
+    county: "data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp"
+    state: "data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp"
+    FAF_zones: "data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp"
 
   trade_data:
     # One directed OD flow file per SCTG commodity category (01-07)

@@ -39,8 +39,10 @@ code/
 ├── models/                     # saved multitask checkpoint
 └── results/                    # small metric-summary CSVs only
 legacy/                         # archived single-task (per-SCTG) implementation
-portal/                         # visualization portal assets
 ```
+
+The interactive visualization portal now lives in its own repository:
+[ICICLE-ai/GNNFoodFlowPortal](https://github.com/ICICLE-ai/GNNFoodFlowPortal/).
 
 ## Quick Start
 
@@ -91,6 +93,10 @@ MIT
 
 ## Reference
 If you find our code or ideas useful for your research, please cite our paper:
+
+> **The multi-task (MT-LocalizedGCN) paper — _Multi-Type Food Flow Prediction and Scenario Analysis between U.S. Counties using Graph Neural Networks_ (SIGSPATIAL '26) — is to be added.**
+
+In the meantime, please cite the earlier single-task work:
 
 *Zhang, Q., Dev, P., Miller, M., Morales, A., &  Gao, S. (2025). [Scalable Inter-County Food Flow Prediction Using Graph Neural Networks](https://doi.org/10.1145/3748636.3764168). ACM SIGSPATIAL '25, November 3–6, 2025, Minneapolis, MN, USA , 1-10.*
 
@@ -145,10 +151,10 @@ Users should:
 
 ### Data Sources
 - **Trade Data**: [FAF5.6.1 SCTG 01–07 commodity flow data](https://faf.ornl.gov/faf5/) (`code/data/FAF5_SCTG1.csv` … `code/data/FAF5_SCTG7.csv`)
-- **Geographic Information**:
-  - County shapefiles (`portal/data/shapefiles/cb_2017_us_county_500k/cb_2017_us_county_500k.shp`)
-  - State shapefiles (`portal/data/shapefiles/cb_2018_us_state_20m/cb_2018_us_state_20m.shp`)
-  - FAF zones shapefiles (`portal/data/shapefiles/2017_CFS_Metro_Areas_with_FAF/2017_CFS_Metro_Areas_with_FAF.shp`)
+- **Geographic Information** (used for visualization; hosted in the [portal repository](https://github.com/ICICLE-ai/GNNFoodFlowPortal/)):
+  - County shapefiles (`cb_2017_us_county_500k`)
+  - State shapefiles (`cb_2018_us_state_20m`)
+  - FAF zones shapefiles (`2017_CFS_Metro_Areas_with_FAF`)
 - **FAF Economic Indicators**: FAF-level economic data (`code/data/faf_features_aligned_filtered.csv`)
 - **County Economic Indicators**: County-level economic data (`code/data/county_aligned_filtered.csv`)
 - **Distance Information**: FAF Distance Matrix (`code/data/FAF_distance_matrix.csv`)

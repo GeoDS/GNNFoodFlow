@@ -17,8 +17,8 @@ Please go to https://github.com/ICICLE-ai/GNNFoodFlowPortal/ for more updated in
 ## Model Details
 - **Developed by**: Qianheng Zhang & ICICLE Food Systems Team led by Professor Song Gao
 - **Funded by**: NSF AI Institute for Intelligent Cyberinfrastructure with Computational Learning in the Environment (ICICLE) (OAC 2112606)
-- **Model type**: Multi-task Graph Neural Network — **MT-LocalizedGCN** (a distance-kNN localized GCN; `MTEdgeMLP` non-spatial baseline also provided)
-- **Language(s)**: English (for documentation and metadata)
+- **Model type**: Multi-task Graph Neural Network — **MT-LocalizedGCN** (a distance-kNN localized GCN)
+- **Language(s)**: English
 - **License**: MIT License
 - **Framework**: PyTorch, PyTorch Geometric
 
@@ -52,7 +52,7 @@ Install dependencies:
 pip install -r requirements.txt
 ```
 
-Run a one-epoch smoke test:
+Run a one-epoch test:
 
 ```bash
 python code/run_multitask.py --epochs 1 --hidden 32 --log_every 1 --no_pos_weight --no_save
